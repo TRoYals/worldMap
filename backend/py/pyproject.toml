@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "backend-py"
+version = "0.1.0"
+description = ""
+authors = ["TRoYals <aozora00321@gmail.com>"]
+readme = "README.md"
+packages = [{include = "backend_py"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.111.0"
+sqlalchemy = "^2.0.30"
+psycopg2-binary = "^2.9.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

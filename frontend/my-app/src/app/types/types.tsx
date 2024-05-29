@@ -1,5 +1,3 @@
-import { Coordinate } from "mapbox-gl";
-
 // userCities Types
 export interface FeatureCollection {
   type: "FeatureCollection";
@@ -26,4 +24,14 @@ export interface CitiesState {
   focus: [number, number];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+}
+
+// Backend income types
+export interface CityData {
+  code: string;
+  country_name: string;
+  capital_name: string;
+  x_pos: number;
+  y_pos: number;
+  comments: string;
 }

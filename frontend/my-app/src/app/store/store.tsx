@@ -1,8 +1,11 @@
 // store/store.js
 import { configureStore } from "@reduxjs/toolkit";
+import userCities from "./userCities";
 
 const store = configureStore({
-  reducer: {},
+  reducer: {
+    cities: useCities,
+  },
 });
 
 export default store;

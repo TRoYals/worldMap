@@ -35,3 +35,10 @@ export interface CityData {
   y_pos: number;
   comments: string;
 }
+
+//Search Paras for City Search
+export interface SearchParams {
+  countryCode?: string;
+  countryName?: string;
+  capitalName?: string;
+}

@@ -13,7 +13,7 @@ const initialState: CitiesState = {
     type: "FeatureCollection",
     features: [],
   },
-  focus: [0, 0],
+  focus: null,
   status: "idle",
   error: null,
 };
@@ -70,6 +70,7 @@ const useCities = createSlice({
 });
 
 export default useCities.reducer;
+export const { setFocus } = useCities.actions;
 
 export const searchCity = (
   rootCities: RootState,

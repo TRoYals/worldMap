@@ -21,7 +21,7 @@ export interface Properties {
 }
 export interface CitiesState {
   cities: FeatureCollection;
-  focus: [number, number];
+  focus: [number, number] | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }

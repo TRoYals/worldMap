@@ -30,14 +30,15 @@ class DatabaseConnector:
 
     def get_db_url(self):
         encoded_password = quote_plus(self.db_password)
-        url = f"postgresql://{self.db_user}:{encoded_password}@{self.db_host}:{self.db_port}/{self.db_name}"
+        url = f"postgresql://{self.db_user}:{encoded_password}@{self.db_host}:{self.db_port}/{self.db_name}" 
         return url
 
 
 SQLALCHEMY_DATABASE_URL = DatabaseConnector().get_db_url()
 # SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

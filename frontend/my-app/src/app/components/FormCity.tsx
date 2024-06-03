@@ -8,6 +8,8 @@ import Modal from "./Modal";
 import { fetchCities } from "../store/useCities";
 import { setFocus } from "../store/useCities";
 
+export const URL = process.env.NEXT_PUBLIC_URL || "127.0.0.1";
+
 export default function FormCity() {
   const [formData, setFormData] = useState({
     countryCode: "",
@@ -38,15 +40,11 @@ export default function FormCity() {
     e.preventDefault();
     console.log(formData);
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/cities",
-        formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.post(`http://${URL}/cities`, formData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       dispatch(fetchCities() as any);
       console.log(response.data);
       setModalMessage("Data updated successfully!");

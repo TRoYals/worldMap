@@ -7,6 +7,7 @@ import {
   SearchParams,
 } from "../types/types";
 import { RootState } from "./store";
+import { URL } from "../components/FormCity";
 
 const initialState: CitiesState = {
   cities: {
@@ -21,7 +22,7 @@ const initialState: CitiesState = {
 export const fetchCities = createAsyncThunk(
   "cities/fetchData",
   async (): Promise<FeatureCollection> => {
-    const response = await axios.get("http://127.0.0.1:8000/cities/");
+    const response = await axios.get(`http://${URL}:8000/cities/`);
     const cityData = response.data;
     const features = cityData.map((city: CityData) => ({
       type: "Feature",

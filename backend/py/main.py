@@ -11,24 +11,6 @@ from fastapi import HTTPException
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:3000",  # 你的前端应用地址
-    "http://localhost:8000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3001",  # 你的前端应用地址
-    "http://localhost:8001",
-    "http://127.0.0.1:3001",
-    "https://startling-souffle-4fcae8.netlify.app",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 
 class Item(BaseModel):
     name: str

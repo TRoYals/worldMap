@@ -18,8 +18,10 @@ COPY ./backend/ /app/
 # 设置环境变量
 ENV LISTEN_PORT=8000
 
+
 # 暴露端口
 EXPOSE 8000
 
 # 启动应用
-CMD ["uvicorn", "py.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# CMD ["uvicorn", "py.main:app", "--host", "0.0.0.0", "--port", "8000","--reload", "--ssl-keyfile", "./app/py/.cert/private.key", "--ssl-certfile", "./app/py/.cert/certificate.crt"]
+CMD ["uvicorn", "py.main:app", "--host", "0.0.0.0", "--port", "8000","--reload"]

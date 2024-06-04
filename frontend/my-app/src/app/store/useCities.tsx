@@ -22,7 +22,7 @@ const initialState: CitiesState = {
 export const fetchCities = createAsyncThunk(
   "cities/fetchData",
   async (): Promise<FeatureCollection> => {
-    const response = await axios.get(`http://${URL}:8000/cities/`);
+    const response = await axios.get(`${URL}:8000/cities/`);
     const cityData = response.data;
     const features = cityData.map((city: CityData) => ({
       type: "Feature",

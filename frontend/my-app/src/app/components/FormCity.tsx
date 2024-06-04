@@ -8,7 +8,7 @@ import Modal from "./Modal";
 import { fetchCities } from "../store/useCities";
 import { setFocus } from "../store/useCities";
 
-export const URL = process.env.NEXT_PUBLIC_URL || "127.0.0.1";
+export const URL = process.env.NEXT_PUBLIC_URL || "http://127.0.0.1";
 
 export default function FormCity() {
   const [formData, setFormData] = useState({
@@ -40,7 +40,7 @@ export default function FormCity() {
     e.preventDefault();
     console.log(formData);
     try {
-      const response = await axios.post(`http://${URL}/cities`, formData, {
+      const response = await axios.post(`${URL}/cities`, formData, {
         headers: {
           "Content-Type": "application/json",
         },

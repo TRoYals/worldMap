@@ -8,7 +8,7 @@ import Modal from "./Modal";
 import { fetchCities } from "../store/useCities";
 import { setFocus } from "../store/useCities";
 
-export const URL = process.env.NEXT_PUBLIC_URL || "http://127.0.0.1";
+export const URL = process.env.NEXT_PUBLIC_URL || "http://127.0.0.1:8000";
 
 export default function FormCity() {
   const [formData, setFormData] = useState({

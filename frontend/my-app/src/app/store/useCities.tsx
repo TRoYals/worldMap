@@ -35,7 +35,7 @@ export const fetchCities = createAsyncThunk(
         countryCode: city.code,
         countryName: city.country_name,
         capitalName: city.capital_name,
-        popUpMarkup: `<h3>${city.capital_name}</h3><p>${city.country_name}</p><a href="http://example.com">${city.comments}</a>`,
+        popUpMarkup: `<h3>${city.capital_name}</h3><p>${city.country_name}</p><a href="http://${city.code}.${city.capital_name}.com">${city.comments}</a>`,
         comments: city.comments,
       },
     }));
@@ -82,6 +82,7 @@ export const searchCity = (
     const properties = feature.properties;
     return properties.countryCode == countryCode;
   });
+  let isNoCode = matchedFeature;
 
   if (!matchedFeature && countryName) {
     matchedFeature = rootCities.cities.cities.features.find((feature) => {
@@ -99,7 +100,7 @@ export const searchCity = (
 
   if (matchedFeature) {
     return {
-      countryCode: matchedFeature.properties.countryCode,
+      countryCode: isNoCode ? matchedFeature.properties.countryCode : "",
       countryName: matchedFeature.properties.countryName,
       capitalName: matchedFeature.properties.capitalName,
       coordinates: matchedFeature.geometry.coordinates,

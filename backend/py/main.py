@@ -11,26 +11,28 @@ from fastapi import HTTPException
 
 app = FastAPI()
 
+origins = [
+    "http://localhost:3000",  # 你的前端应用地址
+    "http://localhost:8000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",  # 你的前端应用地址
+    "http://localhost:8001",
+    "http://127.0.0.1:3001",
+    "https://startling-souffle-4fcae8.netlify.app",
+]
 
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: Union[bool, None] = None
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
-
-
-@app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item):
-    return {"item_name": item.name, "item_id": item_id}
 
 
 @app.get("/cities/", response_model=list[schemas.CityBase])

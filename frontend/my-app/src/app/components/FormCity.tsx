@@ -59,6 +59,13 @@ export default function FormCity() {
     e.preventDefault();
     let data = searchCity(cities, { ...formData });
     console.log(data);
+
+    if (!data.countryCode) {
+      setModalMessage("Country code does not exist.");
+      setShowModal(true);
+      return;
+    }
+
     const fixedCoordinates = data.coordinates; // 东京的坐标
     setFormData({
       ...data,
@@ -66,6 +73,7 @@ export default function FormCity() {
       x_pos: fixedCoordinates[0],
       y_pos: fixedCoordinates[1],
     });
+
     if (fixedCoordinates.length !== 0) dispatch(setFocus(fixedCoordinates));
   };
   const fields = [

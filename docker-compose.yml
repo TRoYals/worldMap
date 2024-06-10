@@ -17,15 +17,12 @@ services:
       timeout: 10s
       retries: 3
 
-  nginx:
+  frontend:
     build:
       context: .
-      dockerfile: Dockerfile_nginx
+      dockerfile: Dockerfile_frontend
     ports:
-      - "8443:8443"
-    depends_on:
-      app:
-        condition: service_healthy
+      - "3000:3000"
     networks:
       - my-network
 

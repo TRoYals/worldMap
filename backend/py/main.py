@@ -1,21 +1,20 @@
-from typing import Union
-
-from fastapi import FastAPI, Depends
+import os
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from pydantic import BaseModel
-from .database import engine, get_db
-from . import crud, models, schemas
-from sqlalchemy.orm import Session
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import HTTPException
-
+from pathlib import Path
+from urllib.parse import unquote
+import logging
+import shutil
 
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000",  # 你的前端应用地址
-    "http://localhost:8000",
+    "http://localhost:3000",
+    "http://localhost:8000", 
     "http://127.0.0.1:3000",
-    "http://localhost:3001",  # 你的前端应用地址
+    "http://localhost:3001",
     "http://localhost:8001",
     "http://127.0.0.1:3001",
     "https://startling-souffle-4fcae8.netlify.app",
@@ -29,57 +28,79 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
 
+UPLOAD_DIR = Path("uploads")
+if not UPLOAD_DIR.exists():
+    UPLOAD_DIR.mkdir()
 
-@app.get("/cities/", response_model=list[schemas.CityBase])
-def get_all_cities_item(db: Session = Depends(get_db)):
-    items = crud.get_all_cities_item(db=db)
-    return items
+class UploadFileResponse(BaseModel):
+    filename: str
+    chunk_index: int 
+    message: str
 
-
-@app.post("/cities/", response_model=list[schemas.CityBase])
-def handle_city_request(city: schemas.CityCreate, db: Session = Depends(get_db)):
-    db_city = crud.get_city_by_code(db, code=city.code)
-    if db_city:
-        # 如果记录存在，检查数据是否有更新
-        updated = False
-        if (
-            db_city.x_pos != city.x_pos
-            or db_city.y_pos != city.y_pos
-            or db_city.capital_name != city.capital_name
-            or db_city.country_name != city.country_name
-            or db_city.comments != city.comments
-        ):
-            updated = True
-            db_city.x_pos = city.x_pos
-            db_city.y_pos = city.y_pos
-            db_city.capital_name = city.capital_name
-            db_city.country_name = city.country_name
-            db_city.comments = city.comments
-            db.add(db_city)
-            db.commit()
-            db.refresh(db_city)
-        if updated:
-            # 返回全部数据
-            return crud.get_all_cities_item(db=db)
-        else:
-            raise HTTPException(status_code=200, detail="No changes detected")
-    else:
-        # 如果记录不存在，创建新记录
-        new_city = models.Cities(
-            code=city.code,
-            x_pos=city.x_pos,
-            y_pos=city.y_pos,
-            capital_name=city.capital_name,
-            country_name=city.country_name,
-            comments=city.comments,
+@app.post("/upload", response_model=UploadFileResponse)
+async def upload_chunk(
+    file: UploadFile = File(...),
+    filename: str = Form(...),  # 添加 Form 参数
+    chunk_index: int = Form(...),  # 添加 Form 参数
+):
+    try:
+        decoded_filename = unquote(filename)
+        logging.info(f"Receiving chunk {chunk_index} for file: {decoded_filename}")
+        UPLOAD_DIR.mkdir(exist_ok=True)
+        
+        chunk_path = UPLOAD_DIR / f"{decoded_filename}.part{chunk_index}"
+        content = await file.read()
+        logging.info(f"Read {len(content)} bytes from uploaded chunk")
+        
+        with open(chunk_path, "wb") as buffer:
+            buffer.write(content)
+            
+        logging.info(f"Successfully saved chunk to: {chunk_path}")
+        
+        return UploadFileResponse(
+            filename=decoded_filename,
+            chunk_index=chunk_index,
+            message="chunk_upload_success"
         )
-        db.add(new_city)
-        db.commit()
-        db.refresh(new_city)
-        # 返回全部数据
-        return crud.get_all_cities_item(db=db)
+    except Exception as e:
+        logging.error(f"Error saving chunk: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/uploaded-chunks")
+async def get_uploaded_chunks(filename: str):
+    try:
+        decoded_filename = unquote(filename)
+        chunks = list(UPLOAD_DIR.glob(f"{decoded_filename}.part*"))
+        chunk_indices = [
+            int(chunk.name.split("part")[-1]) 
+            for chunk in chunks
+        ]
+        return {"uploadedChunks": sorted(chunk_indices)}
+    except Exception as e:
+        logging.error(f"Error getting uploaded chunks: {str(e)}")
+        return {"uploadedChunks": []}
+
+@app.post("/merge")
+async def merge_chunks(filename: str, total_chunks: int):
+    try:
+        decoded_filename = unquote(filename)
+        file_path = UPLOAD_DIR / decoded_filename
+        chunks = sorted(UPLOAD_DIR.glob(f"{decoded_filename}.part*"))  
+        if len(chunks) != total_chunks:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Missing chunks. Expected {total_chunks}, got {len(chunks)}"
+            )    
+        with open(file_path, 'wb') as outfile:
+            for chunk_path in chunks:
+                with open(chunk_path, 'rb') as infile:
+                    shutil.copyfileobj(infile, outfile)
+                chunk_path.unlink()           
+        return {"message": "File merged successfully"}
+    except Exception as e:
+        logging.error(f"Error merging chunks: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

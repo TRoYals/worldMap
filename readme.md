@@ -8,4 +8,4 @@ Database: PGSQL
 
 ## Frontend
 
-`npx create-next-app@latest`
+可以参考dockerfile启动
